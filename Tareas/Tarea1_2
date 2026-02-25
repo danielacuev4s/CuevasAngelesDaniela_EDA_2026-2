@@ -1,164 +1,110 @@
+
 #include <stdio.h>
 
-/* 
- Prototipos de funciones
- Cada función recibe los operandos y un apuntador
- donde se almacenará el resultado (paso por referencia)
-*/
-void suma(float a, float b, float *resultado);
-void resta(float a, float b, float *resultado);
-void multiplicacion(float a, float b, float *resultado);
-void division(float a, float b, float *resultado);
-void modulo(int a, int b, int *resultado);
-void division_entera(int a, int b, int *resultado);
+#define ALUMNOS 10   // Número total de alumnos
+#define CALIFS 7     // Número de calificaciones por alumno
+
+/* Prototipos de funciones */
+void leerCalificaciones(float califs[ALUMNOS][CALIFS]);
+void promedioAlumno(float califs[ALUMNOS][CALIFS], float promedios[ALUMNOS]);
+void promedioGrupo(float promedios[ALUMNOS], float *promGrupo);
 
 int main() {
-    /*
-     opcion: almacena la opción elegida por el usuario en el menú
-     num1, num2: números flotantes para operaciones normales
-     resultadoF: resultado flotante obtenido por referencia
-     num1I, num2I: números enteros para módulo y división entera
-     resultadoI: resultado entero obtenido por referencia
-    */
-    char opcion;
-    float num1, num2, resultadoF;
-    int num1I, num2I, resultadoI;
 
-    /*
-     El ciclo do-while permite que el menú se muestre
-     al menos una vez y se repita hasta que el usuario
-     elija la opción 'g' (Salir)
-    */
-    do {
-        printf("\n===== CALCULADORA =====\n");
-        printf("a) Suma\n");
-        printf("b) Resta\n");
-        printf("c) Multiplicacion\n");
-        printf("d) Division\n");
-        printf("e) Modulo\n");
-        printf("f) Division entera\n");
-        printf("g) Salir\n");
-        printf("Seleccione una opcion: ");
-        scanf(" %c", &opcion);
+    // Arreglo bidimensional que almacena las calificaciones
+    float calificaciones[ALUMNOS][CALIFS];
 
-        /*
-         switch-case evalúa la opción elegida
-         y ejecuta la operación correspondiente
-        */
-        switch (opcion) {
+    // Arreglo que almacena el promedio de cada alumno
+    float promediosAlumnos[ALUMNOS];
 
-            case 'a':
-                printf("Ingrese dos numeros: ");
-                scanf("%f %f", &num1, &num2);
-                suma(num1, num2, &resultadoF);
-                printf("Resultado: %.2f\n", resultadoF);
-                break;
+    // Variable para guardar el promedio general del grupo
+    float promedioGeneral;
 
-            case 'b':
-                printf("Ingrese dos numeros: ");
-                scanf("%f %f", &num1, &num2);
-                resta(num1, num2, &resultadoF);
-                printf("Resultado: %.2f\n", resultadoF);
-                break;
+    // Llama a la función para leer las calificaciones (con validación)
+    leerCalificaciones(calificaciones);
 
-            case 'c':
-                printf("Ingrese dos numeros: ");
-                scanf("%f %f", &num1, &num2);
-                multiplicacion(num1, num2, &resultadoF);
-                printf("Resultado: %.2f\n", resultadoF);
-                break;
+    // Calcula el promedio de cada alumno
+    promedioAlumno(calificaciones, promediosAlumnos);
 
-            case 'd':
-                printf("Ingrese dos numeros: ");
-                scanf("%f %f", &num1, &num2);
-                if (num2 != 0) {
-                    division(num1, num2, &resultadoF);
-                    printf("Resultado: %.2f\n", resultadoF);
-                } else {
-                    printf("Error: Division entre cero\n");
+    // Calcula el promedio general del grupo
+    promedioGrupo(promediosAlumnos, &promedioGeneral);
+
+    // Muestra los promedios de cada alumno
+    printf("\n--- PROMEDIO POR ALUMNO ---\n");
+    for (int i = 0; i < ALUMNOS; i++) {
+        printf("Alumno %d: %.2f\n", i + 1, promediosAlumnos[i]);
+    }
+
+    // Muestra el promedio del grupo
+    printf("\nPromedio del grupo: %.2f\n", promedioGeneral);
+
+    return 0; // Termina el programa
+}
+
+/*
+ Función leerCalificaciones
+ Solicita las calificaciones y valida que estén entre 0 y 10
+*/
+void leerCalificaciones(float califs[ALUMNOS][CALIFS]) {
+
+    // Recorre cada alumno
+    for (int i = 0; i < ALUMNOS; i++) {
+        printf("\nAlumno %d\n", i + 1);
+
+        // Recorre cada calificación del alumno
+        for (int j = 0; j < CALIFS; j++) {
+
+            do {
+                // Solicita la calificación
+                printf("Ingrese calificacion %d (0 a 10): ", j + 1);
+                scanf("%f", &califs[i][j]);
+
+                // Valida el rango permitido
+                if (califs[i][j] < 0 || califs[i][j] > 10) {
+                    printf("Error: la calificacion debe estar entre 0 y 10\n");
                 }
-                break;
 
-            case 'e':
-                printf("Ingrese dos numeros enteros: ");
-                scanf("%d %d", &num1I, &num2I);
-                if (num2I != 0) {
-                    modulo(num1I, num2I, &resultadoI);
-                    printf("Resultado: %d\n", resultadoI);
-                } else {
-                    printf("Error: Modulo entre cero\n");
-                }
-                break;
+            } while (califs[i][j] < 0 || califs[i][j] > 10);
+        }
+    }
+}
 
-            case 'f':
-                printf("Ingrese dos numeros enteros: ");
-                scanf("%d %d", &num1I, &num2I);
-                if (num2I != 0) {
-                    division_entera(num1I, num2I, &resultadoI);
-                    printf("Resultado: %d\n", resultadoI);
-                } else {
-                    printf("Error: Division entera entre cero\n");
-                }
-                break;
+/*
+ Función promedioAlumno
+ Calcula el promedio de cada alumno
+*/
+void promedioAlumno(float califs[ALUMNOS][CALIFS], float promedios[ALUMNOS]) {
 
-            case 'g':
-                printf("Saliendo de la calculadora...\n");
-                break;
+    float suma; // Variable auxiliar para sumar calificaciones
 
-            default:
-                printf("Opcion invalida\n");
+    // Recorre cada alumno
+    for (int i = 0; i < ALUMNOS; i++) {
+        suma = 0; // Reinicia la suma
+
+        // Suma las calificaciones del alumno
+        for (int j = 0; j < CALIFS; j++) {
+            suma += califs[i][j];
         }
 
-    } while (opcion != 'g');  // Repite el menú hasta salir
-
-    return 0;
-}
-
-/* 
- Función suma
- Recibe dos números flotantes y guarda el resultado
- en la variable apuntada por resultado
-*/
-void suma(float a, float b, float *resultado) {
-    *resultado = a + b;
+        // Calcula y guarda el promedio del alumno
+        promedios[i] = suma / CALIFS;
+    }
 }
 
 /*
- Función resta
- Realiza la resta usando paso por referencia
+ Función promedioGrupo
+ Calcula el promedio general del grupo
+ usando paso por referencia
 */
-void resta(float a, float b, float *resultado) {
-    *resultado = a - b;
-}
+void promedioGrupo(float promedios[ALUMNOS], float *promGrupo) {
 
-/*
- Función multiplicacion
- Multiplica dos números y almacena el resultado por referencia
-*/
-void multiplicacion(float a, float b, float *resultado) {
-    *resultado = a * b;
-}
+    float suma = 0; // Variable para acumular los promedios
 
-/*
- Función division
- Divide dos números flotantes (se valida el cero en main)
-*/
-void division(float a, float b, float *resultado) {
-    *resultado = a / b;
-}
+    // Suma los promedios de todos los alumnos
+    for (int i = 0; i < ALUMNOS; i++) {
+        suma += promedios[i];
+    }
 
-/*
- Función modulo
- Calcula el residuo de la división entre dos enteros
-*/
-void modulo(int a, int b, int *resultado) {
-    *resultado = a % b;
-}
-
-/*
- Función division_entera
- Realiza la división entera entre dos números
-*/
-void division_entera(int a, int b, int *resultado) {
-    *resultado = a / b;
+    // Calcula el promedio del grupo
+    *promGrupo = suma / ALUMNOS;
 }
