@@ -1,0 +1,60 @@
+#include<stdio.h> //libreria de entrada y salida
+#include<string.h>
+#define TAM 2 //Define el tamaño máximo de peliculas
+#define NUM_DIR 2 //Define el tamaño máximo de directores
+struct pelicula{ //Se define el tipo de abstracto de dato pelicula que contiene diferentes tipos de datos según la categoría
+char nombre[20];
+char genero[20];
+short anio;
+short numDirectores;
+char directores[NUM_DIR][20];
+};
+void llenarArreglo(struct pelicula *); //Función para llenar el arreglo
+void imprimirArreglo(struct pelicula *);//Función para imprimir el arreglo con tipo de dato abstracto
+int main(){
+struct pelicula arreglo[TAM];
+llenarArreglo (arreglo);
+imprimirArreglo (arreglo);
+return 0;
+}
+void llenarArreglo(struct pelicula arreglo [TAM]){
+int iesimo, enesimo;
+for (iesimo=0 ; iesimo<TAM ; iesimo++) {
+struct pelicula movie;
+printf("####### Película %d #######\n", iesimo+1);
+printf("Ingrese nombre película: \n");
+setbuf(stdin, NULL);
+scanf("%s", movie.nombre);
+getchar();
+printf("Ingrese género película: \n");
+setbuf(stdin, NULL);
+scanf("%s", movie.genero);
+getchar();
+printf("Ingrese año película: \n");
+setbuf(stdin, NULL);
+scanf("%d", &movie.anio);
+movie.numDirectores = NUM_DIR;
+for (enesimo=0 ; enesimo<NUM_DIR ; enesimo++){
+printf("Ingrese director %d: \n", enesimo+1);
+setbuf(stdin, NULL);
+scanf("%s", movie.directores[enesimo]);
+getchar();
+ }
+arreglo[iesimo] = movie;
+}
+}
+void imprimirArreglo(struct pelicula arreglo [TAM]){
+int iesimo, enesimo;
+printf("####### Contenido del arreglo #######\n");
+for (iesimo=TAM-1 ; iesimo>=0 ; iesimo--) {
+printf("####### Película %d #######\n", iesimo+1);
+printf("PELÍCULA: %s\n", arreglo[iesimo].nombre);
+printf("GÉNERO: %s\n", arreglo[iesimo].genero);
+printf("AÑO: %d\n", arreglo[iesimo].anio);
+printf("DIRECTOR(ES):\n");
+for (enesimo=0 ; enesimo<arreglo[iesimo].numDirectores ;
+enesimo++){
+printf("%s\n", arreglo[iesimo].directores[enesimo]);
+}
+}
+}
