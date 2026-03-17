@@ -1,0 +1,220 @@
+			#include <stdio.h>   // Entrada y salida
+#include <stdlib.h>  //funciones de utilidad (malloc, free, atoi)
+#include "pilap5.h"    // Funciones de la pila
+
+int main(){
+
+	Pila pila;              // Declara la pila
+	pila_init(&pila);       // Inicializa la pila
+
+	int n;                  // Cantidad de nodos
+	int valor;              // Valor a guardar
+	char entrada[50];       // Para leer texto (evita errores como 2.2)
+	int opcion;             // Opción del menú
+
+	/* Ingreso inicial */
+	printf("¿Cuantos nodos desea ingresar?: ");
+	scanf("%d",&n);
+
+	for(int i=0;i<n;i++){
+
+		printf("Valor del nodo %d: ",i+1);
+		scanf("%d",&valor);
+
+		pila_push(&pila,valor);
+	}
+
+	/* Menú */
+	do{
+
+		printf("\n--- MENU PILA ---\n");
+		printf("1. Agregar un nodo\n");
+		printf("2. Agregar varios nodos\n");
+		printf("3. Pop\n");
+		printf("4. Ver tope\n");
+		printf("5. Tamaño\n");
+		printf("0. Salir\n");
+
+		scanf("%s",entrada); // Lee como texto (evita romper el programa)
+
+		opcion = atoi(entrada); // Convierte a entero
+
+		switch(opcion){
+
+			case 1:
+
+				printf("Ingrese valor: ");
+				scanf("%d",&valor);
+
+				pila_push(&pila,valor);
+
+			break;
+
+			case 2:
+
+				printf("¿Cuantos nodos?: ");
+				scanf("%d",&n);
+
+				for(int i=0;i<n;i++){
+
+					printf("Valor: ");
+					scanf("%d",&valor);
+
+					pila_push(&pila,valor);
+				}
+
+			break;
+
+			case 3:
+
+				if(pila_pop(&pila,&valor))
+					printf("Eliminado: %d\n",valor);
+				else
+					printf("Pila vacia\n");
+
+			break;
+
+			case 4:
+
+				if(pila_peek(&pila,&valor))
+					printf("Tope: %d\n",valor);
+				else
+					printf("Pila vacia\n");
+
+			break;
+
+			case 5:
+
+				printf("Tamaño: %d\n",pila.tam);
+
+			break;
+
+			case 0:
+				printf("Saliendo...\n");
+			break;
+
+			default:
+				printf("Opcion invalida\n"); // Evita que el programa se rompa
+		}
+
+	}while(opcion!=0);
+
+	pila_destroy(&pila); // Libera memoria
+
+	return 0; // Fin
+}
+
+#ifndef PILA_H                 // Evita inclusión múltiple del archivo
+#define PILA_H
+
+/* Declaración adelantada de Nodo */
+typedef struct Nodo Nodo;     // Permite usar Nodo antes de definirlo
+
+/* Estructura de la pila */
+typedef struct Pila{
+	Nodo *tope;              // Apuntador al nodo en el tope
+	int tam;                 // Número de elementos en la pila
+}Pila;
+
+/* Prototipos de funciones */
+void pila_init(Pila *p);             // Inicializa la pila
+int pila_esta_vacia(Pila *p);        // Verifica si está vacía
+
+int pila_push(Pila *p, int valor);   // Inserta elemento
+int pila_pop(Pila *p, int *salida);  // Elimina elemento
+int pila_peek(Pila *p, int *salida); // Consulta el tope
+
+void pila_clear(Pila *p);            // Vacía la pila
+void pila_destroy(Pila *p);          // Libera memoria
+
+#endif
+
+#include "pilap5.h"     // Incluye definiciones de la pila
+#include <stdlib.h>   // Permite usar malloc y free
+
+/* Definición del nodo */
+struct Nodo{
+	int dato;         // Valor almacenado
+	Nodo *sig;        // Apuntador al siguiente nodo
+};
+
+/* Inicializa la pila */
+void pila_init(Pila *p){
+
+	if(!p) return;    // Si el apuntador es NULL, no hace nada
+
+	p->tope = NULL;   // La pila inicia vacía
+	p->tam = 0;       // Tamaño inicial = 0
+}
+
+/* Verifica si la pila está vacía */
+int pila_esta_vacia(Pila *p){
+
+	if(!p) return 1;  // Si no existe, se considera vacía
+
+	return (p->tam == 0); // Devuelve 1 si no hay elementos
+}
+
+/* Inserta un elemento */
+int pila_push(Pila *p, int valor){
+
+	if(!p) return 0;  // Si la pila no existe, falla
+
+	Nodo *nuevo = (Nodo*) malloc(sizeof(Nodo)); // Reserva memoria
+
+	if(!nuevo) return 0; // Si falla malloc
+
+	nuevo->dato = valor; // Guarda el valor
+
+	nuevo->sig = p->tope; // Apunta al antiguo tope
+
+	p->tope = nuevo; // Nuevo nodo es el tope
+
+	p->tam++; // Incrementa tamaño
+
+	return 1; // Éxito
+}
+
+/* Elimina el elemento del tope */
+int pila_pop(Pila *p, int *salida){
+
+	if(!p || p->tam==0) return 0; // Si está vacía
+
+	Nodo *temp = p->tope; // Guarda el nodo a eliminar
+
+	if(salida)
+		*salida = temp->dato; // Guarda el valor eliminado
+
+	p->tope = temp->sig; // Avanza el tope
+
+	free(temp); // Libera memoria
+
+	p->tam--; // Reduce tamaño
+
+	return 1; // Éxito
+}
+
+/* Consulta el tope */
+int pila_peek(Pila *p, int *salida){
+
+	if(!p || p->tam==0) return 0; // Si está vacía
+
+	if(salida)
+		*salida = p->tope->dato; // Copia el valor
+
+	return 1; // Éxito
+}
+
+/* Vacía la pila */
+void pila_clear(Pila *p){
+
+	int temp; // Variable auxiliar
+
+	while(pila_pop(p,&temp)); // Elimina todos los nodos
+}
+
+/* Destruye la pila */
+void pila_destroy(Pila *p){
+
+	pila_clear(p); // Libera toda la memoria
+}
