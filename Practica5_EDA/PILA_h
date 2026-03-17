@@ -1,0 +1,24 @@
+#ifndef PILA_H                 // Evita inclusión múltiple del archivo
+#define PILA_H
+
+/* Declaración adelantada de Nodo */
+typedef struct Nodo Nodo;     // Permite usar Nodo antes de definirlo
+
+/* Estructura de la pila */
+typedef struct Pila{
+	Nodo *tope;              // Apuntador al nodo en el tope
+	int tam;                 // Número de elementos en la pila
+}Pila;
+
+/* Prototipos de funciones */
+void pila_init(Pila *p);             // Inicializa la pila
+int pila_esta_vacia(Pila *p);        // Verifica si está vacía
+
+int pila_push(Pila *p, int valor);   // Inserta elemento
+int pila_pop(Pila *p, int *salida);  // Elimina elemento
+int pila_peek(Pila *p, int *salida); // Consulta el tope
+
+void pila_clear(Pila *p);            // Vacía la pila
+void pila_destroy(Pila *p);          // Libera memoria
+
+#endif
