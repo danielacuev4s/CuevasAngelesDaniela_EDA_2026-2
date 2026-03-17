@@ -1,0 +1,105 @@
+#include <stdio.h>   // Entrada y salida
+#include <stdlib.h>  //funciones de utilidad (malloc, free, atoi)
+#include "pilap5.h"    // Funciones de la pila
+
+int main(){
+
+	Pila pila;              // Declara la pila
+	pila_init(&pila);       // Inicializa la pila
+
+	int n;                  // Cantidad de nodos
+	int valor;              // Valor a guardar
+	char entrada[50];       // Para leer texto (evita errores como 2.2)
+	int opcion;             // Opción del menú
+
+	/* Ingreso inicial */
+	printf("¿Cuantos nodos desea ingresar?: ");
+	scanf("%d",&n);
+
+	for(int i=0;i<n;i++){
+
+		printf("Valor del nodo %d: ",i+1);
+		scanf("%d",&valor);
+
+		pila_push(&pila,valor);
+	}
+
+	/* Menú */
+	do{
+
+		printf("\n--- MENU PILA ---\n");
+		printf("1. Agregar un nodo\n");
+		printf("2. Agregar varios nodos\n");
+		printf("3. Pop\n");
+		printf("4. Ver tope\n");
+		printf("5. Tamaño\n");
+		printf("0. Salir\n");
+
+		scanf("%s",entrada); // Lee como texto (evita romper el programa)
+
+		opcion = atoi(entrada); // Convierte a entero
+
+		switch(opcion){
+
+			case 1:
+
+				printf("Ingrese valor: ");
+				scanf("%d",&valor);
+
+				pila_push(&pila,valor);
+
+			break;
+
+			case 2:
+
+				printf("¿Cuantos nodos?: ");
+				scanf("%d",&n);
+
+				for(int i=0;i<n;i++){
+
+					printf("Valor: ");
+					scanf("%d",&valor);
+
+					pila_push(&pila,valor);
+				}
+
+			break;
+
+			case 3:
+
+				if(pila_pop(&pila,&valor))
+					printf("Eliminado: %d\n",valor);
+				else
+					printf("Pila vacia\n");
+
+			break;
+
+			case 4:
+
+				if(pila_peek(&pila,&valor))
+					printf("Tope: %d\n",valor);
+				else
+					printf("Pila vacia\n");
+
+			break;
+
+			case 5:
+
+				printf("Tamaño: %d\n",pila.tam);
+
+			break;
+
+			case 0:
+				printf("Saliendo...\n");
+			break;
+
+			default:
+				printf("Opcion invalida\n"); // Evita que el programa se rompa
+		}
+
+	}while(opcion!=0);
+
+	pila_destroy(&pila); // Libera memoria
+
+	return 0; // Fin
+}
