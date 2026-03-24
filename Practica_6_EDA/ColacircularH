@@ -1,0 +1,51 @@
+#ifndef COLA_H
+#define COLA_H
+//Se define la estructura que utilizara cola
+typedef struct {
+    int identificador; //Numero para identificar el dato
+    char nombre[40]; //Se define una cadena de caracteres
+} Dato;
+
+/* Definición completa del nodo para cola doble y circular */
+typedef struct Nodo {
+    Dato dato; //Información almacenada
+    struct Nodo *sig; //Apuntador al siguiente nodo
+    struct Nodo *ant; //Apuntador al nodo anterior (doble enlace)
+} Nodo;
+
+/* Cola FIFO basada en lista ligada doble y circular */
+typedef struct Cola {
+    Nodo frente; /* Apunta al primer elemento (sale primero) */
+    Nodo final;  /* Apunta al último elemento (entra último) */
+    int   tam;    /* Tamaño actual de la cola */
+} Cola;
+
+/* Interfaz, prototipos de las funciones que se utilizaran */
+
+//Función que inicializa la cola
+void cola_init(Cola *c);
+
+//Función para verificar si la cola esta vacía
+int cola_esta_vacia(Cola *c);
+
+//Función para devolver el tamaño
+int cola_tamano(Cola *c);
+
+//Función para insertar un elemento al final de la cola (encolar)
+//En cola circular doble el último nodo apunta al primero y viceversa
+int cola_encolar(Cola c, Dato valor); /* enqueue O(1) */
+
+//Eliminar el elemento del frente (desencolar)
+//Se mantiene la circularidad después de eliminar
+int cola_desencolar(Cola c, Dato *salida); /* dequeue O(1) */
+
+//Consultar el elemento que esta al frente pero sin eliminarlo
+int cola_frente(Cola c, Dato *salida); /* peek O(1) */
+
+//Función para vaciar la cola (libera todos los nodos)
+void cola_clear(Cola *c);
+
+//Función para destruir la cola (libera memoria completamente)
+void cola_destroy(Cola *c);
+
+#endif /* COLA_H *//
