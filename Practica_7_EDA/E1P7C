@@ -1,0 +1,385 @@
+//Programa de cola circular, reemplazando estructuras por listas ligadas
+//Collin Torres Ana Ivonne
+//Cuevas Angeles Daniela
+//Ortiz Vallado Naomi Abril
+//Victoriano Escalante Emma Paola
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* ================== ESTRUCTURAS ================== */
+
+
+struct EQUIPO_MEDICO {
+    char Nombre[31];
+    char Marca[31];
+    char Modelo[31];
+};
+
+
+struct ESPECIALIDAD {
+    char Nombre[31];
+    int CantidadDoctores;
+    int CantidadPacientes;
+    struct EQUIPO_MEDICO EquipoMedico;
+};
+
+
+struct TRABAJADOR {
+    int NumTrabajador;
+    int Sindicalizado;
+};
+
+
+struct DOCTOR {
+    char Nombre[31];
+    int Edad;
+    struct ESPECIALIDAD Especialidad;
+    struct TRABAJADOR Trabajador;
+    int CantidadPacientes;
+};
+
+
+struct INTENDENCIA {
+    char Nombre[31];
+    int Edad;
+    struct TRABAJADOR Trabajador;
+};
+
+
+struct HOSPITAL_BASICO {
+    char Nombre[31];
+    char Direccion[41];
+};
+
+
+struct PACIENTE {
+    char Nombre[31];
+    int Edad;
+    int NumPaciente;
+    struct DOCTOR Doctor;
+    struct ESPECIALIDAD Especialidad;
+    struct HOSPITAL_BASICO Hospital;
+};
+
+
+/* ================== NODOS Y LISTAS CIRCULARES ================== */
+
+
+struct NodoPaciente { struct PACIENTE paciente; struct NodoPaciente *siguiente; };
+struct NodoDoctor  { struct DOCTOR doctor; struct NodoDoctor *siguiente; };
+struct NodoIntendente { struct INTENDENCIA intendente; struct NodoIntendente *siguiente; };
+struct NodoEspecialidad { struct ESPECIALIDAD especialidad; struct NodoEspecialidad *siguiente; };
+struct NodoEquipo { struct EQUIPO_MEDICO equipo; struct NodoEquipo *siguiente; };
+
+
+/* ================== HOSPITAL ================== */
+
+
+struct HOSPITAL {
+    char Nombre[31];
+    char Direccion[41];
+    struct NodoPaciente *pacientes;
+    struct NodoDoctor *doctores;
+    struct NodoIntendente *intendentes;
+    struct NodoEspecialidad *especialidades;
+    struct NodoEquipo *equipos;
+};
+
+
+/* ================== SISTEMA ================== */
+
+
+struct SISTEMA {
+    struct HOSPITAL hospitales[5];
+    int totalHospitales;
+};
+
+
+/* ================== AUXILIARES ================== */
+
+
+void limpiarBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
+}
+
+
+int leerEntero(const char *mensaje) {
+    int valor;
+    while (1) {
+        printf("%s", mensaje);
+        if (scanf("%d", &valor) == 1) { limpiarBuffer(); return valor; }
+        printf("Entrada invalida. Intente de nuevo.\n");
+        limpiarBuffer();
+    }
+}
+
+
+void leerCadena(const char *mensaje, char *destino, int tam) {
+    char buffer[256];
+    printf("%s", mensaje);
+    if (fgets(buffer, sizeof(buffer), stdin)) {
+        buffer[strcspn(buffer, "\n")] = '\0';
+        strncpy(destino, buffer, tam - 1);
+        destino[tam - 1] = '\0';
+    }
+}
+
+
+int leerNumero4Digitos(const char *mensaje) {
+    int numero;
+    do { numero = leerEntero(mensaje);
+        if (numero <= 0 || numero > 9999)
+        printf("Debe ser de 4 digitos.\n");
+    } while(numero <= 0 || numero > 9999);
+
+    return numero;
+}
+
+
+/* ================== INICIALIZACION ================== */
+
+
+void inicializarHospital(struct HOSPITAL *h) {
+    strcpy(h->Nombre, "");
+    strcpy(h->Direccion, "");
+    h->pacientes = NULL;
+    h->doctores = NULL;
+    h->intendentes = NULL;
+    h->especialidades = NULL;
+    h->equipos = NULL;
+}
+
+
+void inicializarSistema(struct SISTEMA *s) {
+    s->totalHospitales = 0;
+    for (int i=0; i<5; i++) inicializarHospital(&s->hospitales[i]);
+}
+
+
+/* ================== SELECCION HOSPITAL ================== */
+
+
+int seleccionarHospital(struct SISTEMA *s) {
+    if (s->totalHospitales==0) {
+        printf("No hay hospitales registrados.\n");
+        return -1;
+    }
+    for (int i=0;i<s->totalHospitales;i++)
+    printf("%d. %s\n", i+1, s->hospitales[i].Nombre);
+    int h;
+    do { h = leerEntero("Seleccione hospital: ");
+    } while(h<1 || h>s->totalHospitales);
+    return h-1;
+}
+
+
+/* ================== AGREGAR DATOS ================== */
+
+
+void agregarHospital(struct SISTEMA *s) {
+    if (s->totalHospitales >= 5)
+    {
+    printf("Limite de hospitales alcanzado.\n");
+    return;
+    }
+    int idx = s->totalHospitales;
+    inicializarHospital(&s->hospitales[idx]);
+    leerCadena("Nombre del hospital: ", s->hospitales[idx].Nombre, 31);
+    leerCadena("Direccion del hospital: ", s->hospitales[idx].Direccion, 41);
+    s->totalHospitales++;
+    printf("Hospital agregado correctamente.\n");
+}
+
+
+/* Función genérica para agregar nodo a lista circular */
+#define AGREGAR_NODO(lista, nodo) \
+    if (!(lista)) { lista = (nodo); (nodo)->siguiente = (nodo); } \
+    else { (nodo)->siguiente = (lista)->siguiente; (lista)->siguiente = (nodo); lista = (nodo); }
+
+
+void agregarPaciente(struct HOSPITAL *h) {
+    struct NodoPaciente *nuevo = malloc(sizeof(struct NodoPaciente));
+    leerCadena("Nombre paciente: ", nuevo->paciente.Nombre, 31);
+    nuevo->paciente.Edad = leerEntero("Edad: ");
+    nuevo->paciente.NumPaciente = leerNumero4Digitos("Num paciente: ");
+    AGREGAR_NODO(h->pacientes, nuevo)
+    printf("Paciente agregado.\n");
+}
+
+
+void agregarDoctor(struct HOSPITAL *h) {
+    struct NodoDoctor *nuevo = malloc(sizeof(struct NodoDoctor));
+    leerCadena("Nombre doctor: ", nuevo->doctor.Nombre, 31);
+    nuevo->doctor.Edad = leerEntero("Edad: ");
+    nuevo->doctor.Trabajador.NumTrabajador = leerNumero4Digitos("Num trabajador: ");
+    AGREGAR_NODO(h->doctores, nuevo)
+    printf("Doctor agregado.\n");
+}
+
+
+void agregarIntendente(struct HOSPITAL *h) {
+    struct NodoIntendente *nuevo = malloc(sizeof(struct NodoIntendente));
+    leerCadena("Nombre intendente: ", nuevo->intendente.Nombre, 31);
+    nuevo->intendente.Edad = leerEntero("Edad: ");
+    AGREGAR_NODO(h->intendentes, nuevo)
+    printf("Intendente agregado.\n");
+}
+
+
+void agregarEspecialidad(struct HOSPITAL *h) {
+    struct NodoEspecialidad *nuevo = malloc(sizeof(struct NodoEspecialidad));
+    leerCadena("Nombre especialidad: ", nuevo->especialidad.Nombre, 31);
+    AGREGAR_NODO(h->especialidades, nuevo)
+    printf("Especialidad agregada.\n");
+}
+
+
+void agregarEquipo(struct HOSPITAL *h) {
+    struct NodoEquipo *nuevo = malloc(sizeof(struct NodoEquipo));
+    leerCadena("Nombre equipo: ", nuevo->equipo.Nombre, 31);
+    leerCadena("Marca: ", nuevo->equipo.Marca, 31);
+    leerCadena("Modelo: ", nuevo->equipo.Modelo, 31);
+    AGREGAR_NODO(h->equipos, nuevo)
+    printf("Equipo agregado.\n");
+}
+
+
+/* ================== VISUALIZACION ================== */
+
+
+/* Función genérica para recorrer lista circular */
+#define RECORRER_LISTA(tipoNodo, nodoLista, imprimirNodo) \
+    if (!(nodoLista)) { printf("No hay elementos.\n"); } \
+    else { \
+        tipoNodo *actual = (nodoLista)->siguiente; \
+        char opcion; \
+        do { \
+            imprimirNodo(actual); \
+            printf("Presione 'a' para siguiente, 'q' para salir: "); \
+            opcion = getchar(); limpiarBuffer(); \
+            if(opcion=='a'||opcion=='A') actual = actual->siguiente; \
+        } while(opcion != 'q' && opcion != 'Q'); \
+    }
+
+
+void imprimirPaciente(struct NodoPaciente *n) {
+    printf("\nNombre: %s\nEdad: %d\nNumPaciente: %d\n", n->paciente.Nombre, n->paciente.Edad, n->paciente.NumPaciente);
+}
+
+
+void imprimirDoctor(struct NodoDoctor *n) {
+    printf("\nNombre: %s\nEdad: %d\nNumTrabajador: %d\n", n->doctor.Nombre, n->doctor.Edad, n->doctor.Trabajador.NumTrabajador);
+}
+
+
+void imprimirIntendente(struct NodoIntendente *n) {
+    printf("\nNombre: %s\nEdad: %d\n", n->intendente.Nombre, n->intendente.Edad);
+}
+
+
+void imprimirEspecialidad(struct NodoEspecialidad *n) {
+    printf("\nNombre Especialidad: %s\n", n->especialidad.Nombre);
+}
+
+
+void imprimirEquipo(struct NodoEquipo *n) {
+    printf("\nNombre Equipo: %s\nMarca: %s\nModelo: %s\n", n->equipo.Nombre, n->equipo.Marca, n->equipo.Modelo);
+}
+
+
+void visualizarHospital(struct HOSPITAL *h) {
+    printf("\nNombre: %s\nDireccion: %s\n", h->Nombre, h->Direccion);
+}
+
+
+/* ================== MENU ================== */
+
+
+void menuAgregarDatos(struct SISTEMA *s) {
+    int op, h;
+    do {
+        printf("\n1.Hospital\n2.Paciente\n3.Doctor\n4.Intendente\n5.Especialidad\n6.Equipo\n7.Regresar\n");
+        op = leerEntero("Opcion: ");
+        switch(op) {
+            case 1: agregarHospital(s); break;
+            case 2: h = seleccionarHospital(s); if(h!=-1) agregarPaciente(&s->hospitales[h]); break;
+            case 3: h = seleccionarHospital(s); if(h!=-1) agregarDoctor(&s->hospitales[h]); break;
+            case 4: h = seleccionarHospital(s); if(h!=-1) agregarIntendente(&s->hospitales[h]); break;
+            case 5: h = seleccionarHospital(s); if(h!=-1) agregarEspecialidad(&s->hospitales[h]); break;
+            case 6: h = seleccionarHospital(s); if(h!=-1) agregarEquipo(&s->hospitales[h]); break;
+        }
+    } while(op != 7);
+}
+
+
+void menuVisualizarDatos(struct SISTEMA *s) {
+    int op, h;
+    do {
+        printf("\n1.Hospital\n2.Pacientes\n3.Doctores\n4.Intendentes\n5.Especialidades\n6.Equipos\n7.Regresar\n");
+        op = leerEntero("Opcion: ");
+        switch(op) {
+            case 1: h = seleccionarHospital(s); if(h!=-1) visualizarHospital(&s->hospitales[h]); break;
+            case 2: h = seleccionarHospital(s); if(h!=-1) RECORRER_LISTA(struct NodoPaciente, s->hospitales[h].pacientes, imprimirPaciente); break;
+            case 3: h = seleccionarHospital(s); if(h!=-1) RECORRER_LISTA(struct NodoDoctor, s->hospitales[h].doctores, imprimirDoctor); break;
+            case 4: h = seleccionarHospital(s); if(h!=-1) RECORRER_LISTA(struct NodoIntendente, s->hospitales[h].intendentes, imprimirIntendente); break;
+            case 5: h = seleccionarHospital(s); if(h!=-1) RECORRER_LISTA(struct NodoEspecialidad, s->hospitales[h].especialidades, imprimirEspecialidad); break;
+            case 6: h = seleccionarHospital(s); if(h!=-1) RECORRER_LISTA(struct NodoEquipo, s->hospitales[h].equipos, imprimirEquipo); break;
+        }
+    } while(op != 7);
+}
+
+
+/* ================== LIBERAR MEMORIA ================== */
+
+
+#define LIBERAR_LISTA(tipoNodo, nodoLista) \
+    if(nodoLista){ \
+        tipoNodo *inicio = nodoLista->siguiente; \
+        tipoNodo *actual = inicio; \
+        do { \
+            tipoNodo *tmp = actual; \
+            actual = actual->siguiente; \
+            free(tmp); \
+        } while(actual != inicio); \
+        nodoLista = NULL; \
+    }
+
+
+void liberarSistema(struct SISTEMA *s) {
+    for(int i=0;i<s->totalHospitales;i++){
+        LIBERAR_LISTA(struct NodoPaciente, s->hospitales[i].pacientes)
+        LIBERAR_LISTA(struct NodoDoctor, s->hospitales[i].doctores)
+        LIBERAR_LISTA(struct NodoIntendente, s->hospitales[i].intendentes)
+        LIBERAR_LISTA(struct NodoEspecialidad, s->hospitales[i].especialidades)
+        LIBERAR_LISTA(struct NodoEquipo, s->hospitales[i].equipos)
+    }
+}
+
+
+/* ================== MAIN ================== */
+
+
+int main() {
+    struct SISTEMA sistema;
+    inicializarSistema(&sistema);
+    int op;
+
+
+    do {
+        printf("\n=== SISTEMA DE HOSPITALES ===\n");
+        printf("1. Agregar datos\n2. Visualizar datos\n3. Salir\n");
+        op = leerEntero("Seleccion: ");
+        switch(op){
+            case 1: menuAgregarDatos(&sistema); break;
+            case 2: menuVisualizarDatos(&sistema); break;
+        }
+    } while(op != 3);
+
+
+    liberarSistema(&sistema);
+    printf("Saliendo... Hasta luego!\n");
+    return 0;
+}
