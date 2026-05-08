@@ -1,0 +1,63 @@
+//Colin Torres Ana Ivonne
+//Cuevas Angeles Daniela
+//Ortiz Vallado Naomi Abril
+//Victoriano Escalante Emma Paola
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h> // rand, srand
+#include <time.h>   // time
+
+void swap(int* xp, int* yp){
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+// Bubble Sort optimizado
+void bubbleSort(int arr[], int n){
+    int i, j;
+    bool swapped;
+    for (i = 0; i < n - 1; i++) {
+        swapped = false;
+        for (j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(&arr[j], &arr[j + 1]);
+                swapped = true;
+            }
+        }
+        if (swapped == false)
+            break;
+    }
+}
+
+// Imprimir arreglo
+void printArray(int arr[], int size){
+    for (int i = 0; i < size; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+int main(){
+    int n = 100; //Se debe cambiar por el número de posiciones que se quieren
+    int arr[100]; //Se debe cambiar por el número de posiciones que se quieren
+
+    // Inicializar semilla aleatoria
+    srand(time(NULL));
+
+    // Llenar arreglo con números aleatorios (0-999)
+    for(int i = 0; i < n; i++){
+        arr[i] = rand() % 1000; 
+    }
+
+    printf("Arreglo original:\n");
+    printArray(arr, n);
+
+    bubbleSort(arr, n);
+
+    printf("\nArreglo ordenado:\n");
+    printArray(arr, n);
+
+    return 0;
+
+}
