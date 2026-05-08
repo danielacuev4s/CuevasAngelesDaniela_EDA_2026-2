@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdlib.h> // rand, srand
+#include <time.h>   // time
+
+void insertionSort(int arr[], int n)
+{
+    for (int i = 1; i < n; ++i) {
+        int key = arr[i];
+        int j = i - 1;
+
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void printArray(int arr[], int n)
+{
+    for (int i = 0; i < n; ++i)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+int main()
+{
+    int n = 100; //Se debe cambiar por el número de posiciones que se quieren
+    int arr[100]; //Se debe cambiar por el número de posiciones que se quieren
+
+    // Inicializar semilla aleatoria
+    srand(time(NULL));
+
+    // Llenar arreglo con números aleatorios (0 - 999)
+    for (int i = 0; i < n; i++) {
+        arr[i] = rand() % 1000; 
+    }
+
+    printf("Arreglo original:\n");
+    printArray(arr, n);
+
+    insertionSort(arr, n);
+
+    printf("\nArreglo ordenado:\n");
+    printArray(arr, n);
+
+    return 0;
+}
