@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// To heapify a subtree rooted with node i
+void heapify(int arr[], int n, int i) {
+
+    // Initialize largest as root
+    int largest = i;
+
+    // left index = 2*i + 1
+    int l = 2 * i + 1;
+
+    // right index = 2*i + 2
+    int r = 2 * i + 2;
+
+    // If left child is larger than root
+    if (l < n && arr[l] > arr[largest])
+        largest = l;
+
+    // If right child is larger than largest so far
+    if (r < n && arr[r] > arr[largest])
+        largest = r;
+
+    // If largest is not root
+    if (largest != i) {
+        int temp = arr[i];
+        arr[i] = arr[largest];
+        arr[largest] = temp;
+
+        // Recursively heapify the affected sub-tree
+        heapify(arr, n, largest);
+    }
+}
+
+// Main function to do heap sort
+void heapSort(int arr[], int n) {
+
+    // Build heap
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+    // Extract elements from heap one by one
+    for (int i = n - 1; i > 0; i--) {
+
+        // Move current root to end
+        int temp = arr[0];
+        arr[0] = arr[i];
+        arr[i] = temp;
+
+        // Heapify reduced heap
+        heapify(arr, i, 0);
+    }
+}
+
+int main() {
+
+    int arr[100]; //Se modifica de acuerdo a las posiciones requeridas
+    int n = 100; //Se modifica de acuerdo a las posiciones requeridas
+
+    // Inicializar semilla aleatoria
+    srand(time(NULL));
+
+    // Llenar arreglo con números aleatorios del 0 al 999
+    for (int i = 0; i < n; i++) {
+        arr[i] = rand() % 1000;
+    }
+
+    // Mostrar arreglo original
+    printf("Arreglo original:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+
+    // Ordenar arreglo
+    heapSort(arr, n);
+
+    // Mostrar arreglo ordenado
+    printf("\n\nArreglo ordenado:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+
+    return 0;
+}
