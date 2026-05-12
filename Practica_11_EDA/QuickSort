@@ -1,0 +1,82 @@
+//Colin Torres Ana Ivonne
+//Cuevas Angeles Daniela
+//Ortiz Vallado Naomi Abril
+//Victoriano Escalante Emma Paola
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+void swap(int* a, int* b);
+
+// partition function
+int partition(int arr[], int low, int high) {
+
+    // Choose the pivot
+    int pivot = arr[high];
+
+    // Index of smaller element
+    int i = low - 1;
+
+    // Move smaller elements to the left
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+
+    // Move pivot to correct position
+    swap(&arr[i + 1], &arr[high]);
+
+    return i + 1;
+}
+
+// QuickSort function
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+
+        int pi = partition(arr, low, high);
+
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+// Swap function
+void swap(int* a, int* b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+int main() {
+
+    int arr[100]; //Se modifica de acuerdo a las posiciones requeridas
+    int n = 100; //Se modifica de acuerdo a las posiciones requeridas
+
+    // Inicializar semilla para números aleatorios
+    srand(time(NULL));
+
+    // Llenar arreglo con números aleatorios del 0 al 999
+    for (int i = 0; i < n; i++) {
+        arr[i] = rand() % 1000;
+    }
+
+    // Mostrar arreglo original
+    printf("Arreglo original:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+
+    // Ordenar arreglo
+    quickSort(arr, 0, n - 1);
+
+    // Mostrar arreglo ordenado
+    printf("\n\nArreglo ordenado:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+
+    return 0;
+}
